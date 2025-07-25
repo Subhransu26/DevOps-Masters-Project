@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - echo Installing Terraform...
+      - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o hashicorp.gpg
+      - sudo install -o root -g root -m 644 hashicorp.gpg /etc/apt/trusted.gpg.d/
+      - sudo apt-add-repository --yes --update "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      - sudo apt-get install terraform -y
+      - terraform version
+
+  pre_build:
+    commands:
+      - echo Initializing Terraform...
+      - terraform init
+      - echo Validating Terraform...
+      - terraform validate
+
+  build:
+    commands:
+      - echo Running Terraform Plan...
+      - terraform plan -out=tfplan.out
+
+artifacts:
+  files:
+    - tfplan.out
