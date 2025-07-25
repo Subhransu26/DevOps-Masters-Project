@@ -22,3 +22,23 @@ jobs:
 
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.0
+
+  trivy-scan:
+    name: trivy image scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
+
+      - name: Build Docker Image
+        run: docker build -t devops-masters-app ./docker
+
+      - name: Scan Docker Image with Trivy
+        run: trivy image --exit-code 0 --severity MEDIUM,HIGH,CRITICAL devops-masters-app
